@@ -16,9 +16,9 @@ function Component(props: DialogProps<FormParams, FormReturn>) {
   );
 }
 
-export function useWithdrawDialog(): [
+export function useWithdrawDialog(coin: string): [
   OpenDialog<FormParams, FormReturn>,
   ReactNode,
 ] {
-  return useDialog<FormParams, FormReturn>(Component);
+  return useDialog<FormParams, FormReturn>(Component, coin);
 }

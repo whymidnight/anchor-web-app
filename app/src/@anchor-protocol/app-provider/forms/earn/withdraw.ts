@@ -14,27 +14,40 @@ export interface EarnWithdrawFormReturn extends EarnWithdrawFormStates {
   updateWithdrawAmount: (withdrawAmount: UST) => void;
 }
 
-export function useEarnWithdrawForm(): EarnWithdrawFormReturn {
+export function useEarnWithdrawForm({coin}): EarnWithdrawFormReturn {
   const { connected } = useAccount();
 
   const fixedFee = useFixedFee();
 
-  const { uUST, uaUST } = useBalances();
+    let balance;
+    switch (coin) {
+        case "uluna":
+            const {uxyzLuna} = useBalances();
+            console.log("im u luna", uxyzLuna.toString());
+            balance = uxyzLuna;
+            break;
+        case "uusd":
+            const {uxyzUST} = useBalances();
+            console.log("im u ust", uxyzUST.toString());
+            balance = uxyzUST;
+            break;
+    }
 
   const { totalDeposit } = useMemo(() => {
     return {
-      totalDeposit: big(uaUST).mul('1')
+      totalDeposit: big(balance).mul('1')
       ,
     };
-  }, [uaUST]);
+  }, [balance]);
 
   const [input, states] = useForm(
     earnWithdrawForm,
     {
       isConnected: connected,
       fixedGas: fixedFee,
-      userUUSTBalance: uUST,
+      userUUSTBalance: balance,
       totalDeposit: totalDeposit as u<UST<Big>>,
+      coin,
     },
     () => ({ withdrawAmount: '' as UST }),
   );

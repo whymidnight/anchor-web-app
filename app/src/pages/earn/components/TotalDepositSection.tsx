@@ -35,17 +35,19 @@ export function TotalDepositSection({ className }: TotalDepositSectionProps) {
   // ---------------------------------------------
   // queries
   // ---------------------------------------------
-  const { uUST, uaUST } = useBalances();
+  const { uxyzUST, uxyzLuna } = useBalances();
 
   // ---------------------------------------------
   // computes
   // ---------------------------------------------
-  const { totalDeposit } = useMemo(() => {
+  const { totalLunaDeposit, totalUSTDeposit } = useMemo(() => {
     return {
-        // @ts-ignore
-      totalDeposit: computeTotalDeposit(uaUST, {}),
+      // @ts-ignore
+      totalLunaDeposit: computeTotalDeposit(uxyzLuna, {}),
+      // @ts-ignore
+      totalUSTDeposit: computeTotalDeposit(uxyzUST, {}),
     };
-  }, [uaUST]);
+  }, [uxyzUST, uxyzLuna]);
   // ---------------------------------------------
   // presentation
   // ---------------------------------------------
@@ -60,13 +62,27 @@ export function TotalDepositSection({ className }: TotalDepositSectionProps) {
 
       <div className="amount">
         <AnimateNumber format={formatUSTWithPostfixUnits}>
-          {demicrofy(totalDeposit)}
+          {demicrofy(totalLunaDeposit)}
         </AnimateNumber>{' '}
-        <span className="denom">UST</span>
-        {totalDeposit.gt(MILLION * MICRO) && (
+        <span className="denom">Luna</span>
+        {totalLunaDeposit.gt(MILLION * MICRO) && (
           <SubAmount style={{ fontSize: '16px' }}>
             <AnimateNumber format={formatUST}>
-              {demicrofy(totalDeposit)}
+              {demicrofy(totalLunaDeposit)}
+            </AnimateNumber>{' '}
+            UST
+          </SubAmount>
+        )}
+      </div>
+      <div className="amount">
+        <AnimateNumber format={formatUSTWithPostfixUnits}>
+          {demicrofy(totalUSTDeposit)}
+        </AnimateNumber>{' '}
+        <span className="denom">UST</span>
+        {totalUSTDeposit.gt(MILLION * MICRO) && (
+          <SubAmount style={{ fontSize: '16px' }}>
+            <AnimateNumber format={formatUST}>
+              {demicrofy(totalUSTDeposit)}
             </AnimateNumber>{' '}
             UST
           </SubAmount>
@@ -87,14 +103,27 @@ export function DepositButtons({ className, coin }: TotalDepositSectionProps) {
   // ---------------------------------------------
   // queries
   // ---------------------------------------------
-  const { uUST, uaUST } = useBalances();
+  let nativeBalance;
+  let stakedBalance;
+  switch (coin) {
+  case "uluna":
+      const { uNative, uxyzLuna } = useBalances();
+      nativeBalance = uNative;
+      stakedBalance = uxyzLuna;
+      break;
+  case "uusd":
+      const { uUST, uxyzUST } = useBalances();
+      nativeBalance = uUST;
+      stakedBalance = uxyzUST;
+      break;
+  }
 
   // ---------------------------------------------
   // dialogs
   // ---------------------------------------------
   const [openDepositDialog, depositDialogElement] = useDepositDialog(coin);
 
-  const [openWithdrawDialog, withdrawDialogElement] = useWithdrawDialog();
+  const [openWithdrawDialog, withdrawDialogElement] = useWithdrawDialog(coin);
 
   const openDeposit = useCallback(async () => {
     await openDepositDialog();
@@ -111,14 +140,14 @@ export function DepositButtons({ className, coin }: TotalDepositSectionProps) {
   return (<>
         <ActionButton
           className="sizeButton"
-          disabled={!connected || Big(uUST).lte(0)}
+          disabled={!connected || Big(nativeBalance).lte(0)}
           onClick={openDeposit}
         >
           Deposit
         </ActionButton>
         <BorderButton
           className="sizeButton"
-          disabled={!connected || Big(uaUST).lte(0)}
+          disabled={!connected || Big(stakedBalance).lte(0)}
          onClick={openWithdraw}
         >
           Withdraw

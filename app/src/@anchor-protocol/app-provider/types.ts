@@ -44,7 +44,8 @@ export interface AnchorContractAddress extends AppContractAddress {
   };
   cw20: {
     bLuna: CW20Addr;
-    aUST: CW20Addr;
+    xyzLuna: CW20Addr;
+    xyzUst: CW20Addr;
     ANC: CW20Addr;
     AncUstLP: CW20Addr;
     bLunaLunaLP: CW20Addr;

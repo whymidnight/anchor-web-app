@@ -15,6 +15,7 @@ export interface EarnDepositFormDependency {
   taxRate: Rate;
   maxTaxUUSD: u<UST>;
   isConnected: boolean;
+  coin: string,
 }
 
 export interface EarnDepositFormStates extends EarnDepositFormInput {
@@ -36,6 +37,7 @@ export const earnDepositForm =
     maxTaxUUSD,
     userUUSTBalance,
     isConnected,
+    coin,
   }: EarnDepositFormDependency) =>
   ({
     depositAmount,
@@ -43,6 +45,9 @@ export const earnDepositForm =
     EarnDepositFormStates,
     EarnDepositFormAsyncStates
   > => {
+    let invalidTxFee = "";
+    let invalidDepositAmount = "";
+    let invalidNextTxFee = "";
     const depositAmountExists = depositAmount.length > 0;
 
     // txFee
@@ -60,72 +65,97 @@ export const earnDepositForm =
     })();
 
     // sendAmount
-    const sendAmount = txFee
-      ? (microfy(depositAmount).plus(txFee) as u<UST<Big>>)
-      : undefined;
+    let sendAmount;
+    switch (coin) {
+      case "uusd":
+        sendAmount = txFee
+          ? (microfy(depositAmount).plus(txFee) as u<UST<Big>>)
+          : undefined;
+        const maxAmount = computeMaxUstBalanceForUstTransfer(
+          userUUSTBalance,
+          taxRate,
+          maxTaxUUSD,
+          fixedGas,
+        );
 
-    // maxAmount
-    const maxAmount = computeMaxUstBalanceForUstTransfer(
-      userUUSTBalance,
-      taxRate,
-      maxTaxUUSD,
-      fixedGas,
-    );
+        // invalidTxFee
+        invalidTxFee = (() => {
+          return isConnected && txFee && big(userUUSTBalance).lt(txFee)
+            ? 'Not enough transaction fees'
+            : undefined;
+        })();
 
-    // invalidTxFee
-    const invalidTxFee = (() => {
-      return isConnected && txFee && big(userUUSTBalance).lt(txFee)
-        ? 'Not enough transaction fees'
-        : undefined;
-    })();
+        // invalidDepositAmount
+        invalidDepositAmount = (() => {
+          if (!isConnected || !depositAmountExists || !txFee) {
+            return undefined;
+          }
 
-    // invalidDepositAmount
-    const invalidDepositAmount = (() => {
-      if (!isConnected || !depositAmountExists || !txFee) {
-        return undefined;
-      }
+          return microfy(depositAmount).plus(txFee).gt(userUUSTBalance)
+            ? `Not enough UST`
+            : undefined;
+        })();
 
-      return microfy(depositAmount).plus(txFee).gt(userUUSTBalance)
-        ? `Not enough UST`
-        : undefined;
-    })();
+        // invalidNextTxFee
+        invalidNextTxFee = (() => {
+          if (
+            !isConnected ||
+            !!invalidDepositAmount ||
+            !maxAmount ||
+            !depositAmountExists
+          ) {
+            return undefined;
+          }
 
-    // invalidNextTxFee
-    const invalidNextTxFee = (() => {
-      if (
-        !isConnected ||
-        !!invalidDepositAmount ||
-        !maxAmount ||
-        !depositAmountExists
-      ) {
-        return undefined;
-      }
+          const remainUUSD = big(userUUSTBalance)
+            .minus(microfy(depositAmount))
+            .minus(txFee ?? 0);
 
-      const remainUUSD = big(userUUSTBalance)
-        .minus(microfy(depositAmount))
-        .minus(txFee ?? 0);
+          return remainUUSD.lt(big(fixedGas).mul(2))
+            ? `Leaving less UST in your account may lead to insufficient transaction fees for future transactions.`
+            : undefined;
+        })();
 
-      return remainUUSD.lt(big(fixedGas).mul(2))
-        ? `Leaving less UST in your account may lead to insufficient transaction fees for future transactions.`
-        : undefined;
-    })();
+        return [
+          {
+            depositAmount,
+            txFee: txFee?.toFixed() as u<UST>,
+            sendAmount: sendAmount?.toFixed() as u<UST>,
+            maxAmount: maxAmount?.toFixed() as u<UST>,
+            invalidTxFee,
+            invalidDepositAmount,
+            invalidNextTxFee,
+            availablePost:
+              isConnected &&
+              depositAmountExists &&
+              big(depositAmount).gt(0) &&
+              !invalidTxFee &&
+              !invalidDepositAmount,
+          },
+          undefined,
+        ];
+      case "uluna":
+        sendAmount = txFee
+          ? (microfy(depositAmount) as u<UST<Big>>)
+          : undefined;
+        return [
+          {
+            depositAmount,
+            txFee: Big(0).toFixed() as u<UST>,
+            sendAmount: sendAmount?.toFixed() as u<UST>,
+            maxAmount:  Big(userUUSTBalance).toFixed() as u<UST>,
+            invalidTxFee,
+            invalidDepositAmount,
+            invalidNextTxFee,
+            availablePost:
+              isConnected &&
+              depositAmount.length > 0 &&
+              big(depositAmount).gt(0) &&
+              !invalidTxFee &&
+              !invalidDepositAmount,
+          },
+          undefined,
+        ];
 
-    return [
-      {
-        depositAmount,
-        txFee: txFee?.toFixed() as u<UST>,
-        sendAmount: sendAmount?.toFixed() as u<UST>,
-        maxAmount: maxAmount?.toFixed() as u<UST>,
-        invalidTxFee,
-        invalidDepositAmount,
-        invalidNextTxFee,
-        availablePost:
-          isConnected &&
-          depositAmountExists &&
-          big(depositAmount).gt(0) &&
-          !invalidTxFee &&
-          !invalidDepositAmount,
-      },
-      undefined,
-    ];
+    }
   };

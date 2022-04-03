@@ -16,7 +16,7 @@ export function TerraDepositDialog(props: DialogProps<{}, void>) {
 
   const [openConfirm, confirmElement] = useConfirm();
 
-  const state = useEarnDepositForm();
+  const state = useEarnDepositForm({coin: props.coin});
 
   const [deposit, depositTxResult] = useEarnDepositTx();
 

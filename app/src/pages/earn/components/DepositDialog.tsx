@@ -50,13 +50,28 @@ function DepositDialogBase(props: DepositDialogProps) {
     invalidDepositAmount,
     updateDepositAmount,
     renderBroadcastTxResult,
+    coin,
   } = props;
 
   const account = useAccount();
 
-  const {
-    ust: { formatOutput, formatInput, demicrofy, symbol },
-  } = useFormatters();
+  let formatOutput;
+  let formatInput;
+  let demicrofy;
+  let symbol;
+
+  switch (coin) {
+    case "uluna":
+      ({
+        native: { formatOutput, formatInput, demicrofy, symbol },
+      } = useFormatters());
+      break;
+    case "uusd":
+      ({
+        ust: { formatOutput, formatInput, demicrofy, symbol },
+      } = useFormatters());
+      break;
+  }
 
   const renderBroadcastTx = useMemo(() => {
     if (renderBroadcastTxResult) {

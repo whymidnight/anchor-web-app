@@ -10,6 +10,7 @@ import { ANCHOR_TX_KEY } from '../../env';
 
 export interface EarnWithdrawTxParams {
   withdrawAmount: aUST;
+  withdrawDenom: string;
   txFee: u<UST>;
   onTxSucceed?: () => void;
 }
@@ -23,17 +24,26 @@ export function useEarnWithdrawTx() {
   const refetchQueries = useRefetchQueries();
 
   const stream = useCallback(
-    ({ withdrawAmount, txFee, onTxSucceed }: EarnWithdrawTxParams) => {
+    ({ withdrawAmount, withdrawDenom, txFee, onTxSucceed }: EarnWithdrawTxParams) => {
       if (!connectedWallet || !connectedWallet.availablePost) {
         throw new Error('Can not post!');
       }
 
+      let tokenAddress;
+      switch (withdrawDenom) {
+        case "uluna":
+            tokenAddress = contractAddress.cw20.xyzLuna;
+            break;
+        case "uusd":
+            tokenAddress = contractAddress.cw20.xyzUst;
+            break;
+      }
       return earnWithdrawAllTx({
         // fabricateMarketReedeemStableCoin
         walletAddr: connectedWallet.walletAddress,
         withdrawAmount,
         marketAddr: contractAddress.moneyMarket.market,
-        aUstTokenAddr: contractAddress.cw20.aUST,
+        aUstTokenAddr: tokenAddress,
         // post
         network: connectedWallet.network,
         post: connectedWallet.post,

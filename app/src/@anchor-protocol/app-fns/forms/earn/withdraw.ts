@@ -12,6 +12,7 @@ export interface EarnWithdrawFormDependency {
   fixedGas: u<UST<BigSource>>;
   totalDeposit: u<UST<BigSource>>;
   isConnected: boolean;
+  coin: string,
 }
 
 export interface EarnWithdrawFormStates extends EarnWithdrawFormInput {
@@ -30,6 +31,7 @@ export const earnWithdrawForm =
     totalDeposit,
     userUUSTBalance,
     fixedGas,
+    coin,
   }: EarnWithdrawFormDependency) =>
   ({
     withdrawAmount,
@@ -46,46 +48,65 @@ export const earnWithdrawForm =
         undefined,
       ];
     } else {
-      // txFee
+      let invalidTxFee = "";
+      let invalidWithdrawAmount = "";
       const txFee = big(fixedGas) as u<UST<Big>>;
-
-      // receiveAmount
       const receiveAmount = microfy(withdrawAmount).minus(txFee) as u<UST<Big>>;
 
-      // invalidTxFee
-      const invalidTxFee = (() => {
-        return isConnected && big(userUUSTBalance).lt(txFee)
-          ? 'Not enough transaction fees'
-          : undefined;
-      })();
+      switch (coin) {
+        case "uusd":
+          console.log(withdrawAmount, totalDeposit);
+          // invalidTxFee
+          invalidTxFee = (() => {
+            return isConnected && big(userUUSTBalance).lt(txFee)
+              ? 'Not enough transaction fees'
+              : undefined;
+          })();
 
-      // invalidWithdrawAmount
-      const invalidWithdrawAmount = (() => {
-        if (!isConnected) {
-          return undefined;
-        }
+          // invalidWithdrawAmount
+          invalidWithdrawAmount = (() => {
+            if (!isConnected) {
+              return undefined;
+            }
 
-        return microfy(withdrawAmount).gt(totalDeposit)
-          ? `Not enough aUST`
-          : big(userUUSTBalance).lt(txFee)
-          ? `Not enough UST`
-          : undefined;
-      })();
+            return microfy(withdrawAmount).gt(totalDeposit)
+              ? `Not enough aUST`
+              : big(userUUSTBalance).lt(txFee)
+              ? `Not enough UST`
+              : undefined;
+          })();
 
-      return [
-        {
-          withdrawAmount: withdrawAmount,
-          txFee,
-          receiveAmount,
-          invalidTxFee,
-          invalidWithdrawAmount,
-          availablePost:
-            isConnected &&
-            big(withdrawAmount).gt(0) &&
-            !invalidTxFee &&
-            !invalidWithdrawAmount,
-        },
-        undefined,
-      ];
+          return [
+            {
+              withdrawAmount: withdrawAmount,
+              txFee,
+              receiveAmount,
+              invalidTxFee,
+              invalidWithdrawAmount,
+              availablePost:
+                isConnected &&
+                big(withdrawAmount).gt(0) &&
+                !invalidTxFee &&
+                !invalidWithdrawAmount,
+            },
+            undefined,
+          ];
+        case "uluna":
+          return [
+            {
+              withdrawAmount: withdrawAmount,
+              txFee,
+              receiveAmount,
+              invalidTxFee,
+              invalidWithdrawAmount,
+              availablePost:
+                isConnected &&
+                big(withdrawAmount).gt(0) &&
+                !invalidTxFee &&
+                !invalidWithdrawAmount,
+            },
+            undefined,
+          ];
+      }
     }
   };

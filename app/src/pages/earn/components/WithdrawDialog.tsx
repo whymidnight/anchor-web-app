@@ -50,22 +50,38 @@ function WithdrawDialogBase(props: WithdrawDialogProps) {
     invalidWithdrawAmount,
     updateWithdrawAmount,
     renderBroadcastTxResult,
+    coin,
   } = props;
 
   const { connected } = useAccount();
+  const { uxyzUST, uxyzLuna } = useBalances();
 
-  const { uaUST } = useBalances();
+  let formatOutput;
+  let formatInput;
+  let demicrofy;
+  let symbol;
 
-  const {
-    ust: { formatOutput, formatInput, demicrofy, symbol },
-  } = useFormatters();
-
+  let balance;
+  switch (coin) {
+    case "uluna":
+      ({
+        native: { formatOutput, formatInput, demicrofy, symbol },
+      } = useFormatters());
+      balance = uxyzLuna;
+      break;
+    case "uusd":
+      ({
+        ust: { formatOutput, formatInput, demicrofy, symbol },
+      } = useFormatters());
+      balance = uxyzUST;
+      break;
+  }
+  
   const { totalDeposit } = useMemo(() => {
-    console.log(uaUST);
     return {
-      totalDeposit: big(uaUST) as u<aUST<Big>>,
+      totalDeposit: big(balance) as u<aUST<Big>>,
     };
-  }, [uaUST]);
+  }, [balance]);
 
   const renderBroadcastTx = useMemo(() => {
     if (renderBroadcastTxResult) {

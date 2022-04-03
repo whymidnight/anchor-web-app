@@ -78,7 +78,6 @@ const COLUMBUS_CONTRACT_ADDRESS = {
   bLunaValidatorsRegistry: 'terra10wt548y4y3xeqfrqsgqlqh424lll8fqxp6dyed',
   mmInterestModel: 'terra1kq8zzq5hufas9t0kjsjc62t2kucfnx8txf547n',
   mmOracle: 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t',
-  mmMarket: 'terra1cam4mn8srq2n32f950acpx36v8wq4yhm5tz4v8',
   mmMarketLuna: 'terra15ux2lc0wsujr8ze2tlhsyr570ypkvz9xw6ecxj',
   mmOverseer: 'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8',
   mmCustody: 'terra1ptjp2vfjrwh0j0faj9r6katm640kgjxnwwq9kn',
@@ -86,7 +85,6 @@ const COLUMBUS_CONTRACT_ADDRESS = {
   mmLiquidation: 'terra1w9ky73v4g7v98zzdqpqgf3kjmusnx4d4mvnac6',
   mmDistributionModel: 'terra14mufqpr5mevdfn92p4jchpkxp7xr46uyknqjwq',
   mmLiquidationQueue: '',
-  aTerra: 'terra1u6jyrgfvtjdl2kq8l7ktz8a6fgmzjluv34dz0y',
   bLunaLunaPair: 'terra1j66jatn3k50hjtg2xemnjm8s7y8dws9xqa5y8w',
   bLunaLunaLPToken: 'terra1htw7hm40ch0hacm8qpgd24sus4h0tq3hsseatl',
   ancUstPair: 'terra1qr2k6yjjd5p2kaewqvg93ag74k6gyjr7re37fs',
@@ -103,6 +101,10 @@ const COLUMBUS_CONTRACT_ADDRESS = {
   terraswapFactory: 'terra1ulgw0td86nvs4wtpsc80thv6xelk76ut7a7apj',
   astroportGenerator: 'terra1zgrx9jjqrfye8swykfgmd6hpde60j0nszzupp9',
   vesting: 'terra13v4ln23tmfs2zk4nh5dw5mzufckekp4fpafpcy',
+  mmUstMarket: 'terra18v5hapkey054lz0kjw32puunujxfz8a2tnlg84',
+  xyzUst: 'terra1jp52mm8rfzsamujszyut8t5kayyr3720kwcg59',
+  mmLunaMarket: 'terra18v5hapkey054lz0kjw32puunujxfz8a2tnlg84',
+  xyzLuna: 'terra1jp52mm8rfzsamujszyut8t5kayyr3720kwcg59',
 };
 
 const BOMBAY_CONTRACT_ADDRESS = {
@@ -122,7 +124,6 @@ const BOMBAY_CONTRACT_ADDRESS = {
   mmLiquidation: 'terra16vc4v9hhntswzkuunqhncs9yy30mqql3gxlqfe',
   mmLiquidationQueue: '',
   mmDistributionModel: 'terra1u64cezah94sq3ye8y0ung28x3pxc37tv8fth7h',
-  aTerra: 'terra1cdlnhk7u8lq0ezvxkqsvyn790afkdmqgtqjgs6',
   bLunaLunaPair: 'terra1esle9h9cjeavul53dqqws047fpwdhj6tynj5u4',
   bLunaLunaLPToken: 'terra14e7z2ll6eweq6cxe6qkvl28hatapmw2uflxcyt',
   ancUstPair: 'terra13r3vngakfw457dwhw9ef36mc8w6agggefe70d9',
@@ -139,6 +140,10 @@ const BOMBAY_CONTRACT_ADDRESS = {
   terraswapFactory: 'terra18qpjm4zkvqnpjpw0zn0tdr8gdzvt8au35v45xf',
   astroportGenerator: 'terra1gjm7d9nmewn27qzrvqyhda8zsfl40aya7tvaw5',
   vesting: 'terra15rq8j7auyyd6ydcfkktm3kdagcg56228uclkzy',
+  mmUstMarket: 'terra18v5hapkey054lz0kjw32puunujxfz8a2tnlg84',
+  xyzUst: 'terra1jp52mm8rfzsamujszyut8t5kayyr3720kwcg59',
+  mmLunaMarket: 'terra18v5hapkey054lz0kjw32puunujxfz8a2tnlg84',
+  xyzLuna: 'terra1jp52mm8rfzsamujszyut8t5kayyr3720kwcg59',
 };
 
 export const ANCHOR_CONTRACT_ADDRESS = (
@@ -156,9 +161,9 @@ export const ANCHOR_CONTRACT_ADDRESS = (
       validatorsRegistry: addressMap.bLunaValidatorsRegistry as HumanAddr,
       custody: addressMap.mmCustody as HumanAddr,
     },
-    // @ts-ignore
     moneyMarket: {
-      market: addressMap.mmMarket as HumanAddr,
+      market: addressMap.mmUstMarket as HumanAddr,
+      marketLuna: addressMap.mmLunaMarket as HumanAddr,
       //collaterals: {
       //  [CollateralType.bLuna]: bLunaCollateral,
       //  [CollateralType.bEth]: bEthCollateral,
@@ -193,7 +198,8 @@ export const ANCHOR_CONTRACT_ADDRESS = (
     cw20: {
       bLuna: addressMap.bLunaToken as CW20Addr,
       //bEth: addressMap.bEthToken as CW20Addr,
-      aUST: addressMap.aTerra as CW20Addr,
+      xyzUst: addressMap.xyzUst as CW20Addr,
+      xyzLuna: addressMap.xyzLuna as CW20Addr,
       ANC: addressMap.ANC as CW20Addr,
       AncUstLP: addressMap.ancUstLPToken as CW20Addr,
       bLunaLunaLP: addressMap.bLunaLunaLPToken as CW20Addr,

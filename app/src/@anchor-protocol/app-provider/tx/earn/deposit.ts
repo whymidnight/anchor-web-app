@@ -1,5 +1,5 @@
 import { earnDepositTx } from '@anchor-protocol/app-fns';
-import { u, UST } from '@anchor-protocol/types';
+import { u, UST, HumanAddr } from '@anchor-protocol/types';
 import { useRefetchQueries } from '@libs/app-provider';
 import { useStream } from '@rx-stream/react';
 import { useConnectedWallet } from '@terra-money/wallet-provider';
@@ -29,10 +29,22 @@ export function useEarnDepositTx() {
         throw new Error('Can not post!');
       }
 
+      let marketAddr: HumanAddr;
+      switch (depositDenom) {
+          case "uluna":
+              console.log("im luna");
+              marketAddr = contractAddress.moneyMarket.marketLuna;
+              break;
+          case "uusd":
+              console.log("im u ust");
+              marketAddr = contractAddress.moneyMarket.market;
+              break;
+      }
+
       return earnDepositTx({
         // fabricateMarketDepositStableCoin
         walletAddr: connectedWallet.walletAddress,
-        marketAddr: contractAddress.moneyMarket.market,
+        marketAddr,
         // @ts-ignore
         depositAmount,
         coin: depositDenom,

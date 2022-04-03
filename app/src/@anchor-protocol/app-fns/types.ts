@@ -24,7 +24,7 @@ import {
  */
 export interface AnchorTokenBalances {
   uUST: u<UST>;
-  uaUST: u<aUST>;
+  uxyzUST: u<aUST>;
   uLuna: u<Luna>;
   ubLuna: u<bLuna>;
   uEth: u<Eth>;
@@ -36,7 +36,7 @@ export interface AnchorTokenBalances {
 
 export const DefaultAnchorTokenBalances = {
   uUST: '0' as u<UST>,
-  uaUST: '0' as u<aUST>,
+  uxyzUST: '0' as u<aUST>,
   uLuna: '0' as u<Luna>,
   ubLuna: '0' as u<bLuna>,
   uEth: '0' as u<Eth>,
@@ -49,14 +49,16 @@ export const DefaultAnchorTokenBalances = {
 export interface AnchorBalances {
   uNative: u<Native>; // the native token for the chain, ie, LUNA, ETH, AVAX
   uUST: u<UST>;
-  uaUST: u<aUST>;
+  uxyzUST: u<aUST>;
+  uxyzLuna: u<aUST>;
   uANC: u<ANC>;
 }
 
 export const DefaultAnchorBalances: AnchorBalances = {
   uNative: '0' as u<Native>,
   uUST: '0' as u<UST>,
-  uaUST: '0' as u<aUST>,
+  uxyzUST: '0' as u<aUST>,
+  uxyzLuna: '0' as u<aUST>,
   uANC: '0' as u<ANC>,
 };
 
